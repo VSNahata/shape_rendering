@@ -1,4 +1,5 @@
 ## commands to run
+- cd into 2D_shape_extrusion_and_manipulation
 - npm i
 - npm install --save-dev @babylonjs/core
 - npm install --save-dev html-webpack-plugin
