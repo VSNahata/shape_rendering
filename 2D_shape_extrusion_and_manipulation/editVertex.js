@@ -1,11 +1,9 @@
 // Function to edit vertices of the extruded object
-
 let draggableSpheres = [];
+
+// Edits the vertices of the extruded object by creating draggable spheres at each vertex.
 export function editVertices(mesh, scene) {
     draggableSpheres = []
-    removeSpheres(scene);
-    removeSpheres(scene);
-    removeSpheres(scene);
     removeSpheres(scene);
 
     const localMeshVertices = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
@@ -15,13 +13,10 @@ export function editVertices(mesh, scene) {
         const vertexPosition = new BABYLON.Vector3(localMeshVertices[i], localMeshVertices[i + 1], localMeshVertices[i + 2]);
         createDraggableSphere(vertexPosition, localVertices, mesh, scene);
     }
-
-    console.log('Selected mesh vertices:', localVertices);
 }
 
 // Function to create a draggable sphere at each vertex
 function createDraggableSphere(vertexPosition, localVertices, mesh, scene) {
-    console.log(`i was called`)
     // Check if a sphere already exists at the vertex
     const existingSphere = draggableSpheres.find(sphere => sphere.position.equals(vertexPosition));
 
@@ -41,21 +36,18 @@ function createDraggableSphere(vertexPosition, localVertices, mesh, scene) {
     }
 }
 
-// Function to enable drag behavior for the spheres
+// Enables drag behavior for a sphere, allowing it to be moved and updating associated mesh vertices accordingly.
 function enableDragBehavior(sphere, vertexPosition, localVertices, mesh,scene) {
   const dragBehavior = new BABYLON.PointerDragBehavior();
-  dragBehavior.useObjectOrientationForDragging = false;
   dragBehavior.moveAttached = true;
   dragBehavior.attach(sphere);
-
   // Store the initial position of the sphere
   const initialPosition = vertexPosition.clone();
-
   // Update the mesh vertices when the sphere is dragged
   dragBehavior.onDragObservable.add(eventData => {
       const newPosition = sphere.absolutePosition;
       const delta = newPosition.subtract(initialPosition);
-      vertexPosition.addInPlace(delta); // Update the position of the vertex
+      vertexPosition.add(delta); // Update the position of the vertex
 
       // Update all vertices associated with this sphere
       updateVerticesAssociatedWithSphere(mesh, initialPosition, newPosition, scene);
@@ -63,14 +55,11 @@ function enableDragBehavior(sphere, vertexPosition, localVertices, mesh,scene) {
       // Update the initial position for the next drag
       initialPosition.copyFrom(newPosition);
   });
-
   // Store the drag behavior for cleanup
   sphere.dragBehavior = dragBehavior;
-
   // Store the local vertices for later use
   localVertices.push({ sphere, vertexPosition });
 }
-
 // Function to update all vertices associated with the moved sphere
 function updateVerticesAssociatedWithSphere(mesh, oldPosition, newPosition, scene) {
   const localMeshVertices = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
@@ -83,7 +72,6 @@ function updateVerticesAssociatedWithSphere(mesh, oldPosition, newPosition, scen
       }
       positions.push(vertexPosition.x, vertexPosition.y, vertexPosition.z);
   }
-
   mesh.updateVerticesData(BABYLON.VertexBuffer.PositionKind, positions,scene);
 }
 
