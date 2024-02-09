@@ -88,9 +88,12 @@ function updateVerticesAssociatedWithSphere(mesh, oldPosition, newPosition, scen
 }
 
 export function removeSpheres(scene) {
-  scene.meshes.forEach(mesh => {
-      if (mesh.name == "sphere") {
-          mesh.dispose();
-      }
-  });
+  let i = 4;
+  while(i--){ // to ensure all the spheres are removed
+      scene.meshes.forEach(mesh => {
+          if (mesh.name == "sphere") {
+              mesh.dispose();
+          }
+      });
+  }
 }

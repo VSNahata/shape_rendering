@@ -48,10 +48,6 @@ function initializeScene() {
         moveMode = false;
         vertexEdit = false;
         updateDrawButtonState();
-        removeSpheres(scene);
-        removeSpheres(scene);
-        removeSpheres(scene);
-        removeSpheres(scene);
     });
     function updateDrawButtonState() {
       const drawButton = document.getElementById('drawButton');
@@ -81,9 +77,6 @@ function initializeScene() {
         drawingMode = false;
         vertexEdit = false;
         removeSpheres(scene);
-        removeSpheres(scene);
-        removeSpheres(scene);
-        removeSpheres(scene);
 
     });
 
@@ -92,9 +85,6 @@ function initializeScene() {
         vertexEdit = true;
         moveMode = false;
         drawingMode = false;
-        removeSpheres(scene);
-        removeSpheres(scene);
-        removeSpheres(scene);
         removeSpheres(scene);
 
     });
@@ -127,7 +117,8 @@ function handleRightClick(event) {
           const firstPoint = drawingPoints[0];
           const lastPoint = drawingPoints[drawingPoints.length - 1];
           const distance = BABYLON.Vector3.Distance(firstPoint, lastPoint);
-          if (distance < 1) { // Adjust the threshold as needed
+          if (distance < 0.1) { // Adjust the threshold as needed
+              drawingPoints.pop()
               drawingPoints.push(new BABYLON.Vector3(firstPoint.x, 0.1, firstPoint.z)); // Close the shape
               shape = BABYLON.MeshBuilder.CreatePolygon('shape', { shape: drawingPoints }, scene);
               shape.position.y = 0.1
@@ -146,16 +137,16 @@ function handleRightClick(event) {
 
 // Extrude the drawn shape
 function extrudeShape() {
-    const extrusionHeight = 1;
+    const extrusionHeight = 1; // height can be hardcoded from here
     const extrudedObject = BABYLON.MeshBuilder.ExtrudePolygon('extrudedObject', { shape: drawingPoints, depth: extrusionHeight,updatable:true, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
-    extrudedObject.position.y = 1;
+    extrudedObject.position.y = extrusionHeight; // position is translated in y direction so that when shape is extruded the bottom of the object does not cross the ground.
     extrudedObject.bakeCurrentTransformIntoVertices();
     extrudedObjects.push(extrudedObject); // Store the extruded object in the array
     shape.dispose();
-    scene.removeMesh(currentLine)
-    currentLine.dispose()
+    scene.removeMesh(mesh.name.startWith("lines"))
+    // currentLine.dispose()
+    // currentLine = null;
     drawingPoints = [];
-    currentLine = null;
     drawingMode = true;
 }
 
@@ -175,7 +166,6 @@ canvas.addEventListener('dblclick', event => {
     // Move the selected object
     canvas.addEventListener('pointerdown', event => {
         if (moveMode) {
-          
           const pickResult = scene.pick(scene.pointerX, scene.pointerY);
           if (pickResult.hit && pickResult.pickedMesh.name == "extrudedObject") {
                 scene.activeCamera = camera
