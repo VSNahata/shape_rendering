@@ -2,97 +2,158 @@ import * as BABYLON from '@babylonjs/core';
 import {editVertices, removeSpheres} from "./editVertex.js";
 
 function initializeScene() {
-    const canvas = document.getElementById('renderCanvas');
-    const engine = new BABYLON.Engine(canvas);
+  const canvas = document.getElementById('renderCanvas');
+  const engine = new BABYLON.Engine(canvas);
 
-    const createScene = function() {
-        const scene = new BABYLON.Scene(engine);
-        return scene;
-    }
-
-    const scene = createScene();
-
-    const camera = new BABYLON.ArcRotateCamera("Camera", -3*Math.PI / 4, Math.PI / 4, 10, new BABYLON.Vector3(0, 0, 0), scene);
-    camera.attachControl(canvas, true);
-
-    var light = new BABYLON.DirectionalLight("light1", new BABYLON.Vector3(0, -10, 10), scene);
-    light.intensity = 0.9;
-    var light2 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 10, 10), scene);
-    light2.intensity = 0.7;
-    let ground = BABYLON.MeshBuilder.CreateGround("ground",{width:10, height:10}, scene);
-    ground.rotate(BABYLON.Axis.Y, -90, BABYLON.Space.WORLD)
-
-    let groundMaterial = new BABYLON.StandardMaterial("groundMaterial");
-    groundMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
-    ground.material = groundMaterial;
-
-    // will be attached when a mesh is selected
-    let selectionMaterial = new BABYLON.StandardMaterial("selectionMaterial");
-    selectionMaterial.diffuseColor = new BABYLON.Color3(0.3, 0, 0.3);
-
-    // Drawing variables
-    let isShapeDrawing = false;
-    let drawingMode = false;
-    let drawingPoints = [];
-    let currentLine;
-    let lines = [];
-    let shape;
-    let extrudedObjects = [];
-    let selectedMesh;
-    let moveMode = false;
-    let vertexEdit = false;
-
-    // Draw button event
-    document.getElementById('drawButton').addEventListener('click', () => {
-        isShapeDrawing = true;
-        drawingMode = true;
-        moveMode = false;
-        vertexEdit = false;
-        updateDrawButtonState();
-    });
-    function updateDrawButtonState() {
-      const drawButton = document.getElementById('drawButton');
-      drawButton.disabled = isShapeDrawing; // Disable draw button when a shape is being drawn
+  const createScene = function() {
+      const scene = new BABYLON.Scene(engine);
+      return scene;
   }
 
-    // Extrude button event
-    document.getElementById('extrudeButton').addEventListener('click', () => {
-        if (drawingPoints.length >= 3) {
-          extrudeShape();
-          isShapeDrawing = false; // Set to false when extrusion is completed
-          moveMode = false;
-          updateDrawButtonState();
-          updateExtrudeButtonState();
+  const scene = createScene();
 
-        }
-    });
-    function updateExtrudeButtonState() {
-      const extrudeButton = document.getElementById('extrudeButton');
-    console.log(drawingPoints.length)
+  const camera = new BABYLON.ArcRotateCamera("Camera", -3*Math.PI / 4, Math.PI / 4, 10, new BABYLON.Vector3(0, 0, 0), scene);
+  camera.attachControl(canvas, true);
 
-      extrudeButton.disabled = drawingPoints.length < 3;
+  var light = new BABYLON.DirectionalLight("light1", new BABYLON.Vector3(0, -10, 10), scene);
+  light.intensity = 0.9;
+  var light2 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 10, 10), scene);
+  light2.intensity = 0.7;
+  let ground = BABYLON.MeshBuilder.CreateGround("ground",{width:10, height:10}, scene);
+
+  let groundMaterial = new BABYLON.StandardMaterial("groundMaterial");
+  groundMaterial.diffuseColor = new BABYLON.Color3(0.4, 0.4, 0.4);
+  ground.material = groundMaterial;
+
+  // will be attached when a mesh is selected
+  let selectionMaterial = new BABYLON.StandardMaterial("selectionMaterial");
+  selectionMaterial.diffuseColor = new BABYLON.Color3(0.3, 0, 0.3);
+
+  // Drawing variables
+  let isShapeDrawing = false;
+  let drawingMode = false;
+  let drawingPoints = [];
+  let currentLine;
+  let lines = [];
+  let shape;
+  let extrudedObjects = [];
+  let selectedMesh;
+  let moveMode = false;
+  let vertexEdit = false;
+  
+  function updateDrawButtonState() {
+    const drawButton = document.getElementById('drawButton');
+    drawButton.disabled = isShapeDrawing; // Disable draw button when a shape is being drawn
+    if (drawButton.disabled) {
+      drawButton.classList.add('disabled-button');
+  } else {
+      drawButton.classList.remove('disabled-button');
+  }
+  }
+  function updateExtrudeButtonState() {
+    const extrudeButton = document.getElementById('extrudeButton');
+    extrudeButton.disabled = drawingPoints.length < 3;
+    if (extrudeButton.disabled) {
+      extrudeButton.classList.add('disabled-button');
+    } else {
+      extrudeButton.classList.remove('disabled-button');
     }
-    updateExtrudeButtonState();
+  }
+  function updateMoveButtonState(){
+    const moveButton = document.getElementById('moveButton');
+    moveButton.disabled = (isShapeDrawing || (!extrudedObjects.length))
+    if (moveButton.disabled) {
+      moveButton.classList.add('disabled-button');
+    } else {
+      moveButton.classList.remove('disabled-button');
+    }
+  }
+  function updateVertexEditButtonState(){
+    const vertexEditButton = document.getElementById('vertexEditButton')
+    vertexEditButton.disabled = (isShapeDrawing || (!extrudedObjects.length)) 
+    if (vertexEditButton.disabled) {
+      vertexEditButton.classList.add('disabled-button');
+    } else {
+      vertexEditButton.classList.remove('disabled-button');
+    }
+  }
+  function updateCancelLinesButtonState(){
+    const cancelLinesButton = document.getElementById('cancelLines')
+    cancelLinesButton.disabled = !isShapeDrawing || !lines.length
+    if (cancelLinesButton.disabled) {
+      cancelLinesButton.classList.add('disabled-button');
+    } else {
+      cancelLinesButton.classList.remove('disabled-button');
+    }
+  }
+  function deleteAllLinesFromScene(){
+    lines.forEach((line)=>{
+      line.dispose();
+    })
+    lines = []
+    drawingPoints = [];
+  }
+  // Draw button event
+  document.getElementById('drawButton').addEventListener('click', () => {
+      isShapeDrawing = true;
+      drawingMode = true;
+      moveMode = false;
+      vertexEdit = false;
+      updateDrawButtonState();
+      updateMoveButtonState();
+      updateVertexEditButtonState();
+      removeSpheres(scene);
+  });
 
-    // Move button event
-    document.getElementById('moveButton').addEventListener('click', () => {
-        moveMode = true;
-        drawingMode = false;
-        vertexEdit = false;
-        removeSpheres(scene);
-
-    });
-
-    // Vertex Edit button event
-    document.getElementById('vertexEditButton').addEventListener('click', () => {
-        vertexEdit = true;
+  // Extrude button event
+  document.getElementById('extrudeButton').addEventListener('click', () => {
+      if (drawingPoints.length >= 3) {
+        extrudeShape();
+        isShapeDrawing = false; // Set to false when extrusion is completed
         moveMode = false;
-        drawingMode = false;
-        removeSpheres(scene);
+        updateDrawButtonState();
+        updateExtrudeButtonState();
+        updateMoveButtonState();
+        updateVertexEditButtonState();
+        updateCancelLinesButtonState()
+      }
+  });
 
-    });
+// Move button event
+  document.getElementById('moveButton').addEventListener('click', () => {
+      drawingMode = false;
+      moveMode = true;
+      vertexEdit = false;
+      removeSpheres(scene);
+  });
 
-    // Mouse events for left click (add points) and right click (complete shape)
+// Vertex Edit button event
+  document.getElementById('vertexEditButton').addEventListener('click', () => {
+      vertexEdit = true;
+      drawingMode = false;
+      moveMode = false;
+      removeSpheres(scene);
+
+  });
+  document.getElementById('cancelLines').addEventListener('click', () => {
+      isShapeDrawing = false
+      drawingMode = false;
+      moveMode = false;
+      vertexEdit = false;
+      removeSpheres(scene);
+      updateDrawButtonState();
+      updateMoveButtonState();
+      updateVertexEditButtonState();
+      deleteAllLinesFromScene();
+      updateCancelLinesButtonState()
+
+  });
+updateVertexEditButtonState();
+updateExtrudeButtonState();
+updateMoveButtonState();
+updateCancelLinesButtonState()
+
+// Mouse events for left click (add points) and right click (complete shape)
 canvas.addEventListener('click', handleMouseClick);
 canvas.addEventListener('contextmenu', handleRightClick);
 
@@ -106,6 +167,7 @@ function handleMouseClick(event) {
           if (drawingPoints.length > 1) {
               currentLine = BABYLON.MeshBuilder.CreateLines('lines', { points: drawingPoints }, scene);
               lines.push(currentLine);
+              updateCancelLinesButtonState()
           }
 
       }
@@ -127,14 +189,14 @@ function handleRightClick(event) {
               shape = BABYLON.MeshBuilder.CreatePolygon('shape', { shape: drawingPoints }, scene);
               shape.position.y = 0.1
               drawingMode = false;
-              
+              isShapeDrawing = false
               updateExtrudeButtonState(); // Update extrude button state
-
+              updateCancelLinesButtonState()
           } else {
-              console.log("Shape not closed. Please close the shape by clicking near the starting point.");
+              alert("Shape not closed. Please close the shape by clicking near the starting point.");
           }
       } else {
-          console.log("Not enough points to close the shape. Please add more points.");
+              alert("Not enough points to close the shape. Please add more points.");
       }
   }
 }
@@ -147,15 +209,9 @@ function extrudeShape() {
     extrudedObject.bakeCurrentTransformIntoVertices();
     extrudedObjects.push(extrudedObject); // Store the extruded object in the array
     shape.dispose();
-    lines.forEach((line)=>{
-      line.dispose();
-    })
-    lines = []
-    drawingPoints = [];
-    drawingMode = true;
-    console.log(`157===>mai aaaya tha yahan`)
+    deleteAllLinesFromScene();
+    drawingMode = false;
     updateExtrudeButtonState();
-
 }
 
 // Edit vertices of the extruded objects
@@ -171,49 +227,47 @@ canvas.addEventListener('dblclick', event => {
     }
 });
   
-    // Move the selected object
-    canvas.addEventListener('pointerdown', event => {
-        if (moveMode) {
-          const pickResult = scene.pick(scene.pointerX, scene.pointerY);
-          if (pickResult.hit && pickResult.pickedMesh.name == "extrudedObject") {
-                scene.activeCamera = camera
-                scene.activeCamera.detachControl(canvas, true);
-                selectedMesh = pickResult.pickedMesh;
-                selectedMesh.material = selectionMaterial
-            }
+// Move the selected object
+canvas.addEventListener('pointerdown', event => {
+  if (moveMode) {
+    const pickResult = scene.pick(scene.pointerX, scene.pointerY);
+    if (pickResult.hit && pickResult.pickedMesh.name == "extrudedObject") {
+          scene.activeCamera = camera
+          scene.activeCamera.detachControl(canvas, true);
+          selectedMesh = pickResult.pickedMesh;
+          selectedMesh.material = selectionMaterial
+      }
+  }
+});
+
+canvas.addEventListener('pointermove', event => {
+    if (moveMode && selectedMesh) {
+      const pickResult = scene.pick(scene.pointerX, scene.pointerY, (mesh) => { return mesh === ground; });
+        if (pickResult.hit) {
+            const newPosition = pickResult.pickedPoint;
+            selectedMesh.position.x = newPosition.x;
+            selectedMesh.position.z = newPosition.z;
+
         }
-    });
-
-    canvas.addEventListener('pointermove', event => {
-        if (moveMode && selectedMesh) {
-          const pickResult = scene.pick(scene.pointerX, scene.pointerY, (mesh) => { return mesh === ground; });
-            if (pickResult.hit) {
-                const newPosition = pickResult.pickedPoint;
-                selectedMesh.position.x = newPosition.x;
-                selectedMesh.position.z = newPosition.z;
-
-            }
-        }
-    });
-
-    canvas.addEventListener('pointerup', event => {
-      if (moveMode && selectedMesh) {
-        console.log(`339==> aagaya control waapis`)
-        scene.activeCamera.attachControl(canvas, true);
-        selectedMesh.bakeCurrentTransformIntoVertices();
     }
-        selectedMesh.material = null;
-        selectedMesh = null;
-    });
+});
+canvas.addEventListener('pointerup', event => {
+  if (moveMode && selectedMesh) {
+    scene.activeCamera.attachControl(canvas, true);
+    selectedMesh.bakeCurrentTransformIntoVertices();
+  }
+    selectedMesh.material = null;
+    selectedMesh = null;
+});
 
-    engine.runRenderLoop(function() {
-        scene.render();
-    });
+engine.runRenderLoop(function() {
+    scene.render();
+});
 
-    // this will resize the canvas in order to maintain proper rendering dimensions
-    window.addEventListener('resize', function() {
-        engine.resize();
-    });
+  // this will resize the canvas in order to maintain proper rendering dimensions
+  window.addEventListener('resize', function() {
+      engine.resize();
+  });
 }
 
 document.addEventListener('DOMContentLoaded', initializeScene);

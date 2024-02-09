@@ -1,13 +1,57 @@
-html, body {
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
+/* style.css */
+
+/* Resetting default margins and paddings */
+html, body, #container {
   margin: 0;
   padding: 0;
+  background-color: #33334c;
 }
 
+/* Setting full height for the container */
+#container {
+  height: 100vh;
+  position: relative;
+}
+
+/* Styling the buttons container */
+#buttons-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10%;
+  background-color: #33334c;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+/* Styling the buttons */
+button {
+  padding: 10px 10px;
+  border: none;
+  background-color: #902bf5; /* Green */
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #5f43b2;
+}
+.disabled-button {
+  background-color: #fc7b54;
+}
+.disabled-button:hover{
+  background-color: darkred;
+}
+/* Styling the canvas */
 #renderCanvas {
-  width: 90;
-  height: 90%;
-  /* touch-action: none; */
+  width: 100%;
+  height: 100% /* Adjust for the height of the buttons container */
 }
