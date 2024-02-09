@@ -35,6 +35,7 @@ function initializeScene() {
     let drawingMode = false;
     let drawingPoints = [];
     let currentLine;
+    let lines = [];
     let shape;
     let extrudedObjects = [];
     let selectedMesh;
@@ -67,6 +68,8 @@ function initializeScene() {
     });
     function updateExtrudeButtonState() {
       const extrudeButton = document.getElementById('extrudeButton');
+    console.log(drawingPoints.length)
+
       extrudeButton.disabled = drawingPoints.length < 3;
     }
     updateExtrudeButtonState();
@@ -102,6 +105,7 @@ function handleMouseClick(event) {
           drawingPoints.push(new BABYLON.Vector3(point.x, 0.1, point.z));
           if (drawingPoints.length > 1) {
               currentLine = BABYLON.MeshBuilder.CreateLines('lines', { points: drawingPoints }, scene);
+              lines.push(currentLine);
           }
 
       }
@@ -143,11 +147,15 @@ function extrudeShape() {
     extrudedObject.bakeCurrentTransformIntoVertices();
     extrudedObjects.push(extrudedObject); // Store the extruded object in the array
     shape.dispose();
-    scene.removeMesh(mesh.name.startWith("lines"))
-    // currentLine.dispose()
-    // currentLine = null;
+    lines.forEach((line)=>{
+      line.dispose();
+    })
+    lines = []
     drawingPoints = [];
     drawingMode = true;
+    console.log(`157===>mai aaaya tha yahan`)
+    updateExtrudeButtonState();
+
 }
 
 // Edit vertices of the extruded objects
