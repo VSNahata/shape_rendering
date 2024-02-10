@@ -1,4 +1,5 @@
 # 2D Shape Extrusion and Manipulation
+The objective of this task is to develop a Babylon.js application capable of enabling users to draw various 2D shapes directly onto the ground plane. These shapes can then be extruded into 3D objects with a predetermined height. Additionally, the application should offer functionalities for manipulating these objects, including moving them across the scene and editing their vertices. This interaction is facilitated through mode selection buttons provided in the user interface.
 ## commands to run
 - cd into 2D_shape_extrusion_and_manipulation
 - npm i
