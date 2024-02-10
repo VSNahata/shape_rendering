@@ -5,14 +5,14 @@ html, body, #container {
   margin: 0;
   padding: 0;
   background-color: #33334c;
-  cursor:crosshair;
+  /* cursor:crosshair; */
 }
 
 /* Setting full height for the container */
 #container {
   height: 100vh;
   position: relative;
-  cursor:crosshair
+  /* cursor:crosshair */
 }
 
 /* Styling the buttons container */
@@ -26,40 +26,30 @@ html, body, #container {
   display: flex;
   justify-content: end;
   align-items: center;
-  cursor:crosshair;
+  /* cursor:crosshair; */
 }
 
 /* Styling the buttons */
 button {
   padding: 10px 10px;
-  border: none;
   background-color: #902bf5; /* Green */
+  border-style: solid;
   color: white;
   text-align: center;
-  text-decoration: none;
   display: inline-block;
   font-size: 16px;
   margin: 4px 2px;
-  cursor: crosshair;
   border-radius: 5px;
 }
 
-button:hover {
-  background-color: #5f43b2;
-  cursor:crosshair;
-}
 .disabled-button {
-  background-color: #fc7b54;
+  background-color: #EBEBE4;
   cursor:not-allowed;
 }
-.disabled-button:hover{
-  background-color: darkred;
-  cursor:not-allowed;
 
-}
 /* Styling the canvas */
 #renderCanvas {
   width: 100%;
   height: 100% ;/* Adjust for the height of the buttons container */
-  cursor: crosshair;
+  /* cursor: crosshair; */
 }
