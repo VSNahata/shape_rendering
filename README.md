@@ -1,3 +1,4 @@
+# 2D Shape Extrusion and Manipulation
 ## commands to run
 - cd into 2D_shape_extrusion_and_manipulation
 - npm i
